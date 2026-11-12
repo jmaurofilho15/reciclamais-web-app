@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doação Registrada - ReciclaMais</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="mobile-container">
+    <div class="success-content">
+        <div class="success-icon-circle">✓</div>
+        <span class="badge-rnfs">[ SUCESSO - RNF04 ]</span>
+        <h2>Doação Registrada com Sucesso!</h2>
+        <p class="success-desc">Sua solicitação foi agrupada para o plano de rotas da cooperativa ReciclaMais.</p>
+
+        <div class="receipt-card">
+            <div class="receipt-row">
+                <span>Número do Pedido:</span>
+                <strong>{{ codigo_formatado }}</strong>
+            </div>
+            <div class="receipt-row">
+                <span>Material Selecionado:</span>
+                <strong>{{ pedido.tipo_material }}</strong>
+            </div>
+            <div class="receipt-row">
+                <span>Região (CEP):</span>
+                <strong>{{ pedido.doador.cep }}</strong>
+            </div>
+        </div>
+
+        <a href="{{ url_for('index') }}" class="btn-submit-large">Voltar ao Início</a>
+    </div>
+
+    <footer class="bottom-nav">
+        <a href="{{ url_for('index') }}" class="nav-item">🏠<br>Início</a>
+        <a href="{{ url_for('formulario') }}" class="nav-item">📝<br>Formulário</a>
+        <a href="#" class="nav-item active">📈<br>Status</a>
+    </footer>
+</body>
+</html>
