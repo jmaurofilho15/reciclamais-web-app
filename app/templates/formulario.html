@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de Coleta - ReciclaMais</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="mobile-container">
+    <div class="form-top-bar">
+        <a href="{{ url_for('index') }}" class="back-link">← Voltar</a>
+        <span class="form-title">Formulário de Coleta [RF01]</span>
+        <span class="badge-step">Passo 1/1</span>
+    </div>
+
+    <form method="POST" class="coleta-form">
+        {{ form.hidden_tag() }}
+        
+        <label class="label-section">1. Selecione o Tipo de Material *</label>
+        <div class="material-grid">
+            {% for subfield in form.tipo_material %}
+                <label class="material-card">
+                    {{ subfield }}
+                    <span>{{ subfield.label.text }}</span>
+                </label>
+            {% endfor %}
+        </div>
+
+        <div class="input-group">
+            <label>{{ form.nome.label.text }} *</label>
+            {{ form.nome(class="form-control", placeholder="Ex: Maria da Silva") }}
+        </div>
+
+        <div class="input-group">
+            <label>{{ form.telefone.label.text }} *</label>
+            {{ form.telefone(class="form-control", placeholder="(61) 98888-7777") }}
+        </div>
+
+        <div class="form-row">
+            <div class="input-group half">
+                <label>{{ form.cep.label.text }} *</label>
+                {{ form.cep(class="form-control", placeholder="70000-000") }}
+            </div>
+            <div class="input-group half">
+                <label>{{ form.endereco.label.text }} *</label>
+                {{ form.endereco(class="form-control", placeholder="Nº 123") }}
+            </div>
+        </div>
+
+        {{ form.submit(class="btn-submit-large") }}
+    </form>
+
+    <footer class="bottom-nav">
+        <a href="{{ url_for('index') }}" class="nav-item">🏠<br>Início</a>
+        <a href="{{ url_for('formulario') }}" class="nav-item active">📝<br>Formulário</a>
+        <a href="#" class="nav-item">📈<br>Status</a>
+    </footer>
+</body>
+</html>

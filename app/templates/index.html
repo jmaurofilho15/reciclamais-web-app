@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReciclaMais Web App - Início</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="mobile-container">
+    <header class="header-ods">
+        <small>[ WIREFRAME HEADER / ODS 12 ]</small>
+        <h1>ReciclaMais Web App</h1>
+        <p>Cooperativa de Triagem e Reciclagem</p>
+    </header>
+
+    <main class="content-center">
+        <p class="section-subtitle">Acesso Direto ao Doador</p>
+        <a href="{{ url_for('formulario') }}" class="btn-primary-large">
+            <span>+</span> Cadastrar Nova Doação
+        </a>
+
+        <div class="card-gestao">
+            <a href="#" class="gestao-link">
+                <span>📊</span> Acesso Gestão (Coordenadora) <span class="badge-rf">RF02</span>
+            </a>
+        </div>
+    </main>
+
+    <footer class="bottom-nav">
+        <a href="{{ url_for('index') }}" class="nav-item active">🏠<br>Início</a>
+        <a href="{{ url_for('formulario') }}" class="nav-item">📝<br>Formulário</a>
+        <a href="#" class="nav-item">📈<br>Status</a>
+    </footer>
+</body>
+</html>
