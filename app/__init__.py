@@ -13,7 +13,12 @@ def create_app():
     db.init_app(app)
 
     with app.app_context():
-        from app import models, routes
+        from app import models
+        from app.routes import register_routes
+        
+        # REGISTRA AS ROTAS NO APLICATIVO FLASK (ESSENCIAL PARA EVITAR O ERRO 404)
+        register_routes(app)
+        
         db.create_all()
 
     return app

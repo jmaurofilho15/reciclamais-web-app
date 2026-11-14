@@ -38,7 +38,7 @@ class ReciclaMaisTestCase(unittest.TestCase):
         }, follow_redirects=True)
         
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Doacao Registrada com Sucesso!', response.data)
+        self.assertIn('Doação Registrada com Sucesso!'.encode('UTF-8'), response.data)
         
         # Verifica se o doador e o pedido foram salvos no banco
         with self.app.app_context():
