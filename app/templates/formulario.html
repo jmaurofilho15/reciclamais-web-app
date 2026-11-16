@@ -44,6 +44,10 @@
                 <label>{{ form.cep.label.text }} (8 dígitos) *</label>
                 {{ form.cep(class="form-control", id="cep", placeholder="70000-000", maxlength="9") }}
             </div>
+            <div class="input-group">
+                <label>{{ form.referencia_volume.label.text }} (Opcional)</label>
+                {{ form.referencia_volume(class="form-control", placeholder="Ex: Portão verde / 2 sacos grandes") }}
+            </div>
             <div class="input-group half">
                 <label>{{ form.endereco.label.text }} *</label>
                 {{ form.endereco(class="form-control", placeholder="Nº 123") }}
@@ -55,8 +59,8 @@
 
     <footer class="bottom-nav">
         <a href="{{ url_for('index') }}" class="nav-item">🏠<br>Início</a>
-        <a href="{{ url_for('formulario') }}" class="nav-item active">📝<br>Formulário</a>
-        <a href="#" class="nav-item">📈<br>Status</a>
+        <a href="{{ url_for('formulario') }}" class="nav-item">📝<br>Formulário</a>
+        <a href="{{ url_for('status') }}" class="nav-item">📈<br>Status</a>
     </footer>
 
     <!-- Script para Máscaras e Interatividade -->

@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, RadioField, SubmitField
-from wtforms.validators import DataRequired, Length
+from wtforms.validators import DataRequired, Length, Optional
 
 class ColetaForm(FlaskForm):
     tipo_material = RadioField(
@@ -16,5 +16,6 @@ class ColetaForm(FlaskForm):
     nome = StringField('Nome Completo', validators=[DataRequired(), Length(min=3, max=100)])
     telefone = StringField('Telefone / WhatsApp', validators=[DataRequired(), Length(min=10, max=15)])
     cep = StringField('CEP', validators=[DataRequired(), Length(min=8, max=9)])
-    endereco = StringField('Endereço / Lote', validators=[DataRequired(), Length(min=2, max=150)])
+    endereco = StringField('Número / Lote', validators=[DataRequired(), Length(min=2, max=150)])
+    referencia_volume = StringField('Ponto de Referência / Volume', validators=[Optional(), Length(max=150)])
     submit = SubmitField('Enviar Solicitação de Coleta')

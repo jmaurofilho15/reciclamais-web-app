@@ -10,8 +10,10 @@ class PedidoColeta(db.Model):
     telefone = db.Column(db.String(20), nullable=False)
     cep = db.Column(db.String(10), nullable=False)
     endereco = db.Column(db.String(200), nullable=False)
+    referencia_volume = db.Column(db.String(150), nullable=True)
+    status = db.Column(db.String(50), default='Aguardando Coleta')
     numero_pedido = db.Column(db.String(20), nullable=False, unique=True)
     data_criacao = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
-        return f'<PedidoColeta {self.numero_pedido} - {self.nome}>'
+        return f'<PedidoColeta {self.numero_pedido} - {self.status}>'

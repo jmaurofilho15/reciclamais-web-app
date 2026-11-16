@@ -21,16 +21,16 @@
         </a>
 
         <div class="card-gestao">
-            <a href="#" class="gestao-link">
+            <a href="{{ url_for('gestao') }}" class="gestao-link">
                 📊 Acesso Gestão (Coordenadora) <span class="badge-rf">RF02</span>
             </a>
         </div>
     </div>
 
     <footer class="bottom-nav">
-        <a href="{{ url_for('index') }}" class="nav-item active">🏠<br>Início</a>
+        <a href="{{ url_for('index') }}" class="nav-item">🏠<br>Início</a>
         <a href="{{ url_for('formulario') }}" class="nav-item">📝<br>Formulário</a>
-        <a href="#" class="nav-item">📈<br>Status</a>
+        <a href="{{ url_for('status') }}" class="nav-item">📈<br>Status</a>
     </footer>
 </body>
 </html>
