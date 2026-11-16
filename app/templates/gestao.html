@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão Cooperativa - ReciclaMais</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="mobile-container">
+    <div class="form-top-bar">
+        <a href="{{ url_for('index') }}" class="back-link">← Sair</a>
+        <span class="form-title">Painel Gestão [RF02]</span>
+        <span class="badge-rf">{{ pedidos|length }} Pedidos</span>
+    </div>
+
+    <div class="coleta-form" style="flex: 1; overflow-y: auto;">
+        {% for p in pedidos %}
+        <div class="receipt-card" style="margin: 10px 0; padding: 12px;">
+            <div class="receipt-row">
+                <strong>{{ p.numero_pedido }} • {{ p.nome }}</strong>
+                <span class="badge-step">{{ p.status }}</span>
+            </div>
+            <div style="font-size: 0.85rem; color: #334155; margin: 6px 0;">
+                <strong>Material:</strong> {{ p.tipo_material }} | <strong>Tel:</strong> {{ p.telefone }}<br>
+                <strong>Local:</strong> CEP {{ p.cep }} - {{ p.endereco }}
+                {% if p.referencia_volume %}
+                    <br><strong>Ref/Vol:</strong> {{ p.referencia_volume }}
+                {% endif %}
+            </div>
+            {% if p.status != 'Coletado' %}
+            <form method="POST" action="{{ url_for('concluir_pedido', pedido_id=p.id) }}">
+                <button type="submit" class="btn-primary-large" style="padding: 8px; min-height: 36px; font-size: 0.85rem; background-color: var(--success-green);">
+                    ✓ Marcar como Coletado
+                </button>
+            </form>
+            {% endif %}
+        </div>
+        {% else %}
+            <p class="section-subtitle" style="margin-top: 40px;">Nenhuma coleta na fila.</p>
+        {% endfor %}
+    </div>
+
+    <footer class="bottom-nav">
+        <a href="{{ url_for('index') }}" class="nav-item">🏠<br>Início</a>
+        <a href="{{ url_for('formulario') }}" class="nav-item">📝<br>Formulário</a>
+        <a href="{{ url_for('status') }}" class="nav-item">📈<br>Status</a>
+    </footer>
+</body>
+</html>

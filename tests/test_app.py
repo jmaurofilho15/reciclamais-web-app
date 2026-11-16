@@ -1,54 +1,55 @@
-import os
-import unittest
+import pytest
 from app import create_app, db
-from app.models import Doador, PedidoColeta
+from app.models import PedidoColeta
 
-class ReciclaMaisTestCase(unittest.TestCase):
-    def setUp(self):
-        """Configura o ambiente de testes com banco em memória"""
-        self.app = create_app()
-        self.app.config['TESTING'] = True
-        self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        self.app.config['WTF_CSRF_ENABLED'] = False  # Desativa CSRF para facilitar testes de formulário
-        self.client = self.app.test_client()
-        
-        with self.app.app_context():
+@pytest.fixture
+def client():
+    app = create_app()
+    app.config['TESTING'] = True
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['WTF_CSRF_ENABLED'] = False  # Desativa CSRF apenas no ambiente de testes
+
+    with app.test_client() as client:
+        with app.app_context():
             db.create_all()
-
-    def tearDown(self):
-        """Limpa o banco de dados após cada teste"""
-        with self.app.app_context():
-            db.session.remove()
+        yield client
+        with app.app_context():
             db.drop_all()
 
-    def test_index_route(self):
-        """Testa se a página inicial (Menu Inicial) carrega com status 200"""
-        response = self.client.get('/')
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'ReciclaMais Web App', response.data)
+def test_rotas_principais(client):
+    """Valida se as telas principais carregam corretamente (HTTP 200)."""
+    assert client.get('/').status_code == 200
+    assert client.get('/formulario').status_code == 200
+    assert client.get('/status').status_code == 200
+    assert client.get('/gestao').status_code == 200
 
-    def test_formulario_e_cadastro_coleta(self):
-        """Testa o envio do formulário de coleta e a persistência no banco de dados"""
-        response = self.client.post('/formulario', data={
-            'tipo_material': 'Plástico PET',
-            'nome': 'Maria Aparecida',
-            'telefone': '61988887777',
-            'cep': '70000000',
-            'endereco': 'Lote 12'
-        }, follow_redirects=True)
-        
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Doacao Registrada com Sucesso!', response.data)
-        
-        # Verifica se o doador e o pedido foram salvos no banco
-        with self.app.app_context():
-            doador = Doador.query.first()
-            self.assertIsNotNone(doador)
-            self.assertEqual(doador.nome, 'Maria Aparecida')
-            
-            pedido = PedidoColeta.query.first()
-            self.assertIsNotNone(pedido)
-            self.assertEqual(pedido.tipo_material, 'Plástico PET')
+def test_fluxo_completo_doacao_e_gestao(client):
+    """Testa a criação de um pedido no formulário e a baixa no painel de gestão."""
+    # 1. Submete uma nova doação via formulário
+    resposta_post = client.post('/formulario', data={
+        'tipo_material': 'Plástico PET',
+        'nome': 'Roberto Mendes',
+        'telefone': '(61) 98888-7777',
+        'cep': '70000-000',
+        'endereco': 'Quadra 10 Lote 5',
+        'referencia_volume': 'Portão verde / 2 sacos'
+    }, follow_redirects=True)
 
-if __name__ == '__main__':
-    unittest.main()
+    assert resposta_post.status_code == 200
+    assert b'Doa\xc3\xa7\xc3\xa3o Registrada com Sucesso!' in resposta_post.data
+
+    # 2. Verifica se o registro foi salvo no banco de dados
+    with client.application.app_context():
+        pedido = PedidoColeta.query.first()
+        assert pedido is not None
+        assert pedido.nome == 'Roberto Mendes'
+        assert pedido.status == 'Aguardando Coleta'
+        pedido_id = pedido.id
+
+    # 3. Conclui o pedido pelo painel de gestão (RF02)
+    resposta_baixa = client.post(f'/concluir/{pedido_id}', follow_redirects=True)
+    assert resposta_baixa.status_code == 200
+
+    with client.application.app_context():
+        pedido_atualizado = PedidoColeta.query.get(pedido_id)
+        assert pedido_atualizado.status == 'Coletado'

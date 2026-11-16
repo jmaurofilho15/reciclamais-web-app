@@ -1,17 +1,21 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SubmitField
-from wtforms.validators import DataRequired, Length
+from wtforms import StringField, RadioField, SubmitField
+from wtforms.validators import DataRequired, Length, Optional
 
 class ColetaForm(FlaskForm):
-    tipo_material = SelectField('Tipo de Material', choices=[
-        ('Papel / Papelão', 'Papel / Papelão'),
-        ('Plástico PET', 'Plástico PET'),
-        ('Metal / Latas', 'Metal / Latas'),
-        ('Vidro Limpo', 'Vidro Limpo')
-    ], validators=[DataRequired()])
-    
+    tipo_material = RadioField(
+        'Tipo de Material',
+        choices=[
+            ('Plástico PET', 'Plástico PET'),
+            ('Papel / Papelão', 'Papel / Papelão'),
+            ('Metal / Latas', 'Metal / Latas'),
+            ('Vidro Limpo', 'Vidro Limpo')
+        ],
+        validators=[DataRequired(message="Selecione um tipo de material.")]
+    )
     nome = StringField('Nome Completo', validators=[DataRequired(), Length(min=3, max=100)])
-    telefone = StringField('Telefone / WhatsApp', validators=[DataRequired(), Length(min=10, max=20)])
-    cep = StringField('CEP', validators=[DataRequired(), Length(min=8, max=10)])
-    endereco = StringField('Número / Lote', validators=[DataRequired(), Length(min=1, max=200)])
+    telefone = StringField('Telefone / WhatsApp', validators=[DataRequired(), Length(min=10, max=15)])
+    cep = StringField('CEP', validators=[DataRequired(), Length(min=8, max=9)])
+    endereco = StringField('Número / Lote', validators=[DataRequired(), Length(min=2, max=150)])
+    referencia_volume = StringField('Ponto de Referência / Volume', validators=[Optional(), Length(max=150)])
     submit = SubmitField('Enviar Solicitação de Coleta')
