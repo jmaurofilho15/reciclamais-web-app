@@ -1,7 +1,8 @@
 from flask import render_template, redirect, url_for, request
 from app import db
-from app.models import Doador, PedidoColeta
+from app.models import PedidoColeta
 from app.forms import ColetaForm
+import random
 
 def register_routes(app):
     @app.route('/')
@@ -12,34 +13,21 @@ def register_routes(app):
     def formulario():
         form = ColetaForm()
         if form.validate_on_submit():
-            # Verifica se o doador já existe pelo telefone ou cadastra um novo
-            doador = Doador.query.filter_by(telefone=form.telefone.data).first()
-            if not doador:
-                doador = Doador(
-                    nome=form.nome.data,
-                    telefone=form.telefone.data,
-                    cep=form.cep.data,
-                    endereco=form.endereco.data
-                )
-                db.session.add(doador)
-                db.session.commit()
-
-            # Criação do pedido de coleta vinculado ao doador
+            numero_pedido = f"#REC-{random.randint(1000, 9999)}"
             novo_pedido = PedidoColeta(
-                id_doador=doador.id_doador,
                 tipo_material=form.tipo_material.data,
-                volume_estimado='Volume Padrão MVP',
-                status_pedido='Pendente'
+                nome=form.nome.data,
+                telefone=form.telefone.data,
+                cep=form.cep.data,
+                endereco=form.endereco.data,
+                numero_pedido=numero_pedido
             )
             db.session.add(novo_pedido)
             db.session.commit()
-
-            return redirect(url_for('confirmacao', id_pedido=novo_pedido.id_pedido))
-        
+            return redirect(url_for('confirmacao', pedido_id=novo_pedido.id))
         return render_template('formulario.html', form=form)
 
-    @app.route('/confirmacao/<int:id_pedido>')
-    def confirmacao(id_pedido):
-        pedido = PedidoColeta.query.get_or_404(id_pedido)
-        codigo_formatado = f"#REC-{pedido.id_pedido + 8400}" # Alinhado visualmente ao wireframe
-        return render_template('confirmacao.html', pedido=pedido, codigo_formatado=codigo_formatado)
+    @app.route('/confirmacao/<int:pedido_id>')
+    def confirmacao(pedido_id):
+        pedido = PedidoColeta.query.get_or_404(pedido_id)
+        return render_template('confirmacao.html', pedido=pedido)

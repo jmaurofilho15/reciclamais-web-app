@@ -17,12 +17,15 @@
         {{ form.hidden_tag() }}
         
         <label class="label-section">1. Selecione o Tipo de Material *</label>
+        
         <div class="material-grid">
+            {% set icons = {'Papel / Papelão': '📦', 'Plástico PET': '♻️', 'Metal / Latas': '🥫', 'Vidro Limpo': '🍾'} %}
             {% for subfield in form.tipo_material %}
-                <label class="material-card">
-                    {{ subfield }}
-                    <span>{{ subfield.label.text }}</span>
-                </label>
+            <label class="material-card">
+                {{ subfield(class="radio-input") }}
+                <span class="card-icon">{{ icons.get(subfield.label.text, '♻️') }}</span>
+                <span class="card-text">{{ subfield.label.text }}</span>
+            </label>
             {% endfor %}
         </div>
 
@@ -33,13 +36,13 @@
 
         <div class="input-group">
             <label>{{ form.telefone.label.text }} *</label>
-            {{ form.telefone(class="form-control", placeholder="(61) 98888-7777") }}
+            {{ form.telefone(class="form-control", id="telefone", placeholder="(61) 98888-7777", maxlength="15") }}
         </div>
 
         <div class="form-row">
             <div class="input-group half">
-                <label>{{ form.cep.label.text }} *</label>
-                {{ form.cep(class="form-control", placeholder="70000-000") }}
+                <label>{{ form.cep.label.text }} (8 dígitos) *</label>
+                {{ form.cep(class="form-control", id="cep", placeholder="70000-000", maxlength="9") }}
             </div>
             <div class="input-group half">
                 <label>{{ form.endereco.label.text }} *</label>
@@ -47,7 +50,7 @@
             </div>
         </div>
 
-        {{ form.submit(class="btn-submit-large") }}
+        {{ form.submit(class="btn-submit-large", value="Enviar Solicitação de Coleta →") }}
     </form>
 
     <footer class="bottom-nav">
@@ -55,5 +58,8 @@
         <a href="{{ url_for('formulario') }}" class="nav-item active">📝<br>Formulário</a>
         <a href="#" class="nav-item">📈<br>Status</a>
     </footer>
+
+    <!-- Script para Máscaras e Interatividade -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

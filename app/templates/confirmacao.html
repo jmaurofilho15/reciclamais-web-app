@@ -16,7 +16,7 @@
         <div class="receipt-card">
             <div class="receipt-row">
                 <span>Número do Pedido:</span>
-                <strong>{{ codigo_formatado }}</strong>
+                <strong>{{ pedido.numero_pedido }}</strong>
             </div>
             <div class="receipt-row">
                 <span>Material Selecionado:</span>
@@ -24,7 +24,7 @@
             </div>
             <div class="receipt-row">
                 <span>Região (CEP):</span>
-                <strong>{{ pedido.doador.cep }}</strong>
+                <strong>{{ pedido.cep }}</strong>
             </div>
         </div>
 
