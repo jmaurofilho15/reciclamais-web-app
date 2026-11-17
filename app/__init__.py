@@ -6,19 +6,16 @@ db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'chave-secreta-reciclamais-mvp')
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///reciclamais.db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "chave-padrao-dev-reciclamais")
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///reciclamais.db")
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.init_app(app)
 
+    from .routes import main_bp
+    app.register_blueprint(main_bp)
+
     with app.app_context():
-        from app import models
-        from app.routes import register_routes
-        
-        # REGISTRA AS ROTAS NO APLICATIVO FLASK (ESSENCIAL PARA EVITAR O ERRO 404)
-        register_routes(app)
-        
         db.create_all()
 
     return app
