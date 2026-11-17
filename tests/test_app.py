@@ -7,6 +7,8 @@ def client():
     app = create_app()
     app.config["TESTING"] = True
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    # Desativa a validação CSRF estrita durante os testes automatizados
+    app.config["WTF_CSRF_ENABLED"] = False
     
     with app.app_context():
         db.create_all()
@@ -14,14 +16,13 @@ def client():
         db.drop_all()
 
 def test_rotas_principais(client):
-    # Teste de acesso às rotas principais utilizando caminhos diretos
     assert client.get('/').status_code == 200
     assert client.get('/formulario').status_code == 200
     assert client.get('/status').status_code == 200
     assert client.get('/gestao').status_code == 200
 
 def test_fluxo_completo_doacao_e_gestao(client):
-    # 1. Enviar formulário de doação
+    # 1. Enviar formulário de doação simulando um POST válido
     dados_doacao = {
         "tipo_material": "Plástico PET",
         "nome": "Sr. Roberto Mendes",
@@ -33,6 +34,7 @@ def test_fluxo_completo_doacao_e_gestao(client):
     
     response_post = client.post('/formulario', data=dados_doacao, follow_redirects=True)
     assert response_post.status_code == 200
+    # Valida se redirecionou para o recibo de confirmação contendo o protocolo
     assert b"#REC-" in response_post.data
 
     # 2. Verificar se o pedido consta na gestão da cooperativa
@@ -40,9 +42,10 @@ def test_fluxo_completo_doacao_e_gestao(client):
     assert response_gestao.status_code == 200
     assert b"Sr. Roberto Mendes" in response_gestao.data
 
-    # 3. Obter o ID do pedido salvo no banco em memória para testar a conclusão
+    # 3. Obter o ID do pedido salvo no banco em memória
     with client.application.app_context():
         pedido = PedidoColeta.query.first()
+        assert pedido is not None
         pedido_id = pedido.id
 
     # 4. Executar a conclusão da coleta via rota POST
