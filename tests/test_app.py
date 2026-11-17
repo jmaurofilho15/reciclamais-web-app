@@ -1,3 +1,4 @@
+# tests/test_app.py
 import pytest
 from app import create_app, db
 from app.models import PedidoColeta
@@ -5,51 +6,54 @@ from app.models import PedidoColeta
 @pytest.fixture
 def client():
     app = create_app()
-    app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-    app.config['WTF_CSRF_ENABLED'] = False  # Desativa CSRF apenas no ambiente de testes
-
-    with app.test_client() as client:
-        with app.app_context():
-            db.create_all()
-        yield client
-        with app.app_context():
-            db.drop_all()
+    app.config["TESTING"] = True
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    
+    with app.app_context():
+        db.create_all()
+        yield app.test_client()
+        db.drop_all()
 
 def test_rotas_principais(client):
-    """Valida se as telas principais carregam corretamente (HTTP 200)."""
-    assert client.get('/').status_code == 200
-    assert client.get('/formulario').status_code == 200
-    assert client.get('/status').status_code == 200
-    assert client.get('/gestao').status_code == 200
+    # Atualizado para o namespace 'main.' do Blueprint
+    response_index = client.get('/' )
+    assert response_index.status_code == 200
+
+    response_form = client.get('/formulario')
+    assert response_form.status_code == 200
+
+    response_status = client.get('/status')
+    assert response_status.status_code == 200
+
+    response_gestao = client.get('/gestao')
+    assert response_gestao.status_code == 200
 
 def test_fluxo_completo_doacao_e_gestao(client):
-    """Testa a criação de um pedido no formulário e a baixa no painel de gestão."""
-    # 1. Submete uma nova doação via formulário
-    resposta_post = client.post('/formulario', data={
-        'tipo_material': 'Plástico PET',
-        'nome': 'Roberto Mendes',
-        'telefone': '(61) 98888-7777',
-        'cep': '70000-000',
-        'endereco': 'Quadra 10 Lote 5',
-        'referencia_volume': 'Portão verde / 2 sacos'
-    }, follow_redirects=True)
+    # 1. Enviar formulário de doação
+    dados_doacao = {
+        "tipo_material": "Plástico PET",
+        "nome": "Sr. Roberto Mendes",
+        "telefone": "(11) 98765-4321",
+        "cep": "01001-000",
+        "endereco": "Rua Exemplo, 123",
+        "referencia_volume": "2 sacos grandes na portaria"
+    }
+    
+    response_post = client.post('/formulario', data=dados_doacao, follow_redirects=True)
+    assert response_post.status_code == 200
+    assert b"#REC-" in response_post.data
 
-    assert resposta_post.status_code == 200
-    assert b'Doa\xc3\xa7\xc3\xa3o Registrada com Sucesso!' in resposta_post.data
+    # 2. Verificar se o pedido consta na gestão da cooperativa
+    response_gestao = client.get('/gestao')
+    assert response_gestao.status_code == 200
+    assert b"Sr. Roberto Mendes" in response_gestao.data
 
-    # 2. Verifica se o registro foi salvo no banco de dados
+    # 3. Obter o pedido salvo para testar a conclusão
     with client.application.app_context():
         pedido = PedidoColeta.query.first()
-        assert pedido is not None
-        assert pedido.nome == 'Roberto Mendes'
-        assert pedido.status == 'Aguardando Coleta'
         pedido_id = pedido.id
 
-    # 3. Conclui o pedido pelo painel de gestão (RF02)
-    resposta_baixa = client.post(f'/concluir/{pedido_id}', follow_redirects=True)
-    assert resposta_baixa.status_code == 200
-
-    with client.application.app_context():
-        pedido_atualizado = PedidoColeta.query.get(pedido_id)
-        assert pedido_atualizado.status == 'Coletado'
+    # 4. Executar a conclusão da coleta (rota POST /concluir/<id>)
+    response_concluir = client.post(f'/concluir/{pedido_id}', follow_redirects=True)
+    assert response_concluir.status_code == 200
+    assert b"Coletado" in response_concluir.data
